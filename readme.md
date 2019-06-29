@@ -1,5 +1,3 @@
-![Alt Text](doc/TechnolineTX23_ESP82xx.JPG)
-
 # Technoline TX23 Wind Sensor for ESP WiFi
 
 [Technoline TX23] also known as [LaCrosse TX23], is  a wind speed and wind direction sensor. Maximum value for wind speed ist 51.1 meter per second ( 183.96 km/h or 114.31 miles per hour).
@@ -47,6 +45,8 @@ const int led= 16;
 define SERIAL_DEBUG
 ```
 
+
+![Alt Text](doc/TechnolineTX23_ESP82xx.JPG)
 
 [John]: <https://www.john.geek.nz/2012/08/la-crosse-tx23u-anemometer-communication-protocol/>
 [lib]: <https://github.com/egzumer/Arduino-LaCrosse-TX23-Library>
