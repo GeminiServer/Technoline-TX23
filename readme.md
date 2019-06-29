@@ -15,7 +15,7 @@ It uses 3 wires for communication and power:
 Currently it is unclear of what Voltage the TX23 is normally driven with when connected to its original Weather Station, but it seems to run with 3.3 Volts without any problems. I connected
 the DATA pin directly to one of ESP IO ports.
 
-This port an the TX23 [lib] is based on the Creation of Krzysztof Egzmont which is based on the fantastic work of [John]: Big thanks.
+This port and the TX23 [lib] is based on the Creation of Krzysztof Egzmont which is based on the fantastic work of [John]: Big thanks.
 
 #### Features:
 - WiFi client
