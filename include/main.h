@@ -18,7 +18,7 @@
 #define SERIAL_DEBUG
 
 #ifdef SERIAL_DEBUG
-#define Serial_Log Serial
+  #define Serial_Log Serial
 #else
-#define Serial_Log Serial(a=0,b=0,c=0);
+  #define Serial_Log Serial(a=0,b=0,c=0);
 #endif
