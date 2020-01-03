@@ -40,6 +40,7 @@
 
 #include <tx23.h>
 #include "main.h"
+#include "settings.h"
 
 TX23 tx_23;
 
@@ -113,17 +114,24 @@ void TX23::read() {
 
 void TX23::ReadAnemometer()
 {
-  sSpeed= "Speed: " + String(speed,1) + " m/s" + " (" + String(speed*3.6,1)+ " km/h)";
+	sRawSpeedKMh= String(speed*3.6,1);
+	sRawSpeedMs= String(speed,1);
+  sSpeed= "Speed: " + String(speed,1) + " m/s" + " (" + sRawSpeedKMh + " km/h)";
   sDirection= "Direction: " + dirTable[direction];
+	sRawDirection= dirTable[direction];
 }
 
 void TX23::loop() {
  read();
  if( bReadState ) ReadAnemometer();
  if( bLastReadState ) {
+#ifdef SERIAL_DEBUG
 	 Serial_Log.println(sSpeed);
  	 Serial_Log.println(sDirection);
+#endif
  } else {
+#ifdef SERIAL_DEBUG
 	 Serial_Log.println(sLastError);
+#endif
  }
 }

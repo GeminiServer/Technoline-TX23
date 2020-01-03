@@ -33,8 +33,8 @@ class TX23 : public Task {
 		void setPin(int pin);
 		//reads sensor data, returns true if success
 		void read();
-		String sSpeed;
-	  String sDirection;
+		String sSpeed, sDirection;
+    String sRawSpeedKMh, sRawSpeedMs,	sRawDirection;
 		bool bReadState, bLastReadState;
 		uint uiErrCnt;
 		String sLastError;

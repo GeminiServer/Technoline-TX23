@@ -17,22 +17,36 @@
 
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
+#include <ESP8266HTTPClient.h>
+#include <esp.h>
 #include "httpServer.h"
 #include "tx23.h"
 #include "main.h"
+#include "settings.h"
+#include "schedule.h"
 
 extern TX23 tx_23;
+extern Task task_info;
 
-ESP8266WebServer server(80); //Server on port 80
-WebSocketsServer webSocket = WebSocketsServer(81);
+ESP8266WebServer server(WEBSERVER_PORT); //Server on port 80
+WebSocketsServer webSocket = WebSocketsServer(WEBSOCKET_PORT);
 
 void handleRoot() {
      server.send(200, "text/html", "<html>\
-      <head><script>\
+      <head> \
+      <style> \
+        body { background-color:#555888; font-family:'Roboto'; color:#fff; text-align:center } \
+        code { display:inline-block; max-width:600px;  padding:80px 0 0; line-height:1.5; font-family:monospace; color:#ccc } \
+      </style> \
+      <script>\
       var connection = new WebSocket('ws://'+location.hostname+':81/', ['arduino']);\
       connection.onopen = function () {\
-      connection.send('Connect ' + new Date())\
+        connection.send('Connect ' + new Date())\
       };\
+      function ConnectionSendGet() { \
+        connection.send('get'); \
+        setTimeout(ConnectionSendGet, 1000); \
+      } \
       function writeToScreen(message) { \
         var para = document.querySelector('#output span'); \
         if (!para || para.length == 0) { \
@@ -46,7 +60,7 @@ void handleRoot() {
                           ('0' +   vDate.getHours()).slice(-2) + ':' + \
                           ('0' + vDate.getMinutes()).slice(-2) + ':' + \
                           ('0' + vDate.getSeconds()).slice(-2); \
-         para.innerText = datestring +' --> '+message; \
+         para.innerText = 'Time: ' + datestring + message; \
          document.getElementById('output').appendChild(para); \
       };\
       connection.onerror = function (error) { console.log('WebSocket Error ', error);};\
@@ -57,8 +71,9 @@ void handleRoot() {
       </script></head> \
     <body> \
     <h2>Technoline TX23 - Wind Sensor</h2> \
-    <h3>Current Wind Sensor Information:</h3> \
+    <h3>Current Wind Sensor Information</h3> \
     <h4 id = 'output'></h4>\
+    <button type='button' id='getNewData' onclick='ConnectionSendGet()'>Get Data</button> \
     </body> \
     </html>");
 
@@ -67,23 +82,50 @@ void handleRoot() {
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
   switch(type) {
     case WStype_DISCONNECTED: {
+    #ifdef SERIAL_DEBUG
       Serial_Log.printf("[%u] Disconnected!\n", num);
+    #endif
     } break;
 
     case WStype_CONNECTED: {
-
       IPAddress ip = webSocket.remoteIP(num);
-      Serial_Log.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-      webSocket.sendTXT(num, "Connected");  // Send message to client
+      #ifdef SERIAL_DEBUG
+        Serial_Log.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+      #endif
+      webSocket.sendTXT(num, "\nWebSocket: Connected");  // Send message to client
     } break;
 
     case WStype_TEXT:{
-    Serial_Log.printf("[%u] get Text: %s\n", num, payload);
+      #ifdef SERIAL_DEBUG
+        Serial_Log.printf("[%u] get Text: %s\n", num, String((char*) payload).c_str());
+      #endif
+      if (payload) {
+        if( String((char*) payload).equals( "get") /*0 is equal*/) {
+          int32_t rssi = (WiFi.status() == WL_CONNECTED) ? WiFi.RSSI() : 0;
+          String sMsgTx= tx_23.bLastReadState ? tx_23.sSpeed +"\n" + tx_23.sDirection : tx_23.sLastError;
+          String sMsg= "\n" + sMsgTx +"\n\n"+"WiFi Signal: "+String(rssi).c_str() + " dBm";
+          webSocket.sendTXT(num, sMsg);
+        }
+        if( String((char*) payload).equals( "restart") /*0 is equal*/) {
+          ESP.restart();
+        }
+        if( String((char*) payload).equals( "speed") /*0 is equal*/) {
+          webSocket.sendTXT(num, tx_23.bLastReadState ? tx_23.sRawSpeedKMh : tx_23.sLastError);
+        }
+        if( String((char*) payload).equals( "direction") /*0 is equal*/) {
+          webSocket.sendTXT(num, tx_23.bLastReadState ? tx_23.sRawDirection : tx_23.sLastError);
+        }
+        if( String((char*) payload).equals( "rssi") /*0 is equal*/) {
+          int32_t rssi = (WiFi.status() == WL_CONNECTED) ? WiFi.RSSI() : 0;
+          webSocket.sendTXT(num,String(rssi).c_str());
+        }
+
+      }
     } break;
 
     default: {
-      String sMsg= tx_23.bLastReadState ? tx_23.sSpeed +" - " + tx_23.sDirection : tx_23.sLastError;
-      webSocket.sendTXT( 0 , sMsg );
+      //String sMsg= tx_23.bLastReadState ? tx_23.sSpeed +" - " + tx_23.sDirection : tx_23.sLastError;
+      //webSocket.sendTXT( num , sMsg );
     } break;
   }
 }
@@ -95,13 +137,17 @@ void httpServer::setup() {
   webSocket.onEvent(webSocketEvent);
 
   server.begin();                     // Start server
+#ifdef SERIAL_DEBUG
   Serial_Log.println("HTTP server started");
+#endif
   if(MDNS.begin("Technoline-TX23")) {
+#ifdef SERIAL_DEBUG
     Serial_Log.println("MDNS responder started");
+#endif
   }
 
-  MDNS.addService("http", "tcp", 80); // Add service to MDNS
-  MDNS.addService("ws", "tcp", 81);
+  MDNS.addService("http", "tcp", WEBSERVER_PORT); // Add service to MDNS
+  MDNS.addService("ws", "tcp", WEBSOCKET_PORT);
 }
 
 void httpServer::loop() {
@@ -120,4 +166,5 @@ void httpServer::loop() {
     //Serial_Log.printf("%d Connected websocket clients ping: %d\n", i, ping);
     last_sec = millis();
   }
+
 }

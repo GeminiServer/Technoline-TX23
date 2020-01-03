@@ -15,25 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <Scheduler.h>
 
-class BlinkTask : public Task {
-protected:
-    void setup();
-    void loop();
+// Set LED pin to indicate the TX23 state.
+//
+const int led= 2;
 
-private:
-    uint8_t state;
-};
+// Set IO-Port for TX23 Data IO
+//
+const uint16_t tx_io_port = 0;
 
-class MemTask : public Task {
-public:
-    void loop();
-};
+// Define your WiFi SSID and PSK
+//
+#define STASSID "Your-SSID"
+#define STAPSK  "Your-SSID-Password-PSK"
 
-class WifiSignal : public Task {
-private:
-  int32_t rssi;
-public:
-    void loop();
-};
+#define WEBSERVER_PORT 80
+#define WEBSOCKET_PORT 81
+
+// Define middleware url
+//
+#define MIDDLEWARE_URL    "http://11.11.0.15/middleware.php/data/68097fe0-2cdb-11ea-9c47-e96e7c8f072a.json"
+#define MIDDLEWARE_OPERATION  "?operation=add&value="

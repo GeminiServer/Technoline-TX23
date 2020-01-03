@@ -24,52 +24,62 @@
 #include "schedule.h"
 #include "tx23.h"
 #include "httpServer.h"
+#include "httpClient.h"
 #include "main.h"
+#include "settings.h"
 
 
 extern TX23 tx_23;
 
 BlinkTask blink_task;
 httpServer http_server;
+WifiSignal wifi_signal;
+httpClient http_Client;
+
 #ifdef SERIAL_DEBUG
   MemTask mem_task;
 #endif
 
-#define STASSID "YOUR_AP_WIFI_SSID"
-#define STAPSK  "password"
-
 const char* ssid     = STASSID;
 const char* password = STAPSK;
 
-const uint16_t port = 17;
-const int led= 16;
-
 void setup() {
   pinMode(led, OUTPUT);
+#ifdef SERIAL_DEBUG
   Serial_Log.begin(115200);
   Serial_Log.println();
   Serial_Log.println();
   Serial_Log.print("Connecting to ");
   Serial_Log.println(ssid);
+#endif
   // We start by connecting to a WiFi network
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
+#ifdef SERIAL_DEBUG
   Serial_Log.print("BOOTING");
+#endif
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
+#ifdef SERIAL_DEBUG
     Serial_Log.print(".");
+#endif
   }
 
+#ifdef SERIAL_DEBUG
   Serial_Log.println("");
   Serial_Log.println("WiFi connected");
   Serial_Log.println("IP address: ");
   Serial_Log.println(WiFi.localIP());
-
+#endif
   Scheduler.start(&http_server);   // Start http and webSocket server in scheduler
   Scheduler.start(&blink_task);    // Start led blind in scheduler
+  Scheduler.start(&http_Client);   // Start http and webSocket server in scheduler
+#ifdef SERIAL_DEBUG
   Scheduler.start(&mem_task);      // Start mem info in scheduler
+  Scheduler.start(&wifi_signal);   // Start WiFi Signal Strength dBm info in scheduler
+#endif
 
-  tx_23.setPin(12);                // DATA wire connected to GPIO port 12
+  tx_23.setPin(tx_io_port);        // DATA wire connected to GPIO port 12
   Scheduler.start(&tx_23);         // Start reading tx23 data in scheduler
 
   Scheduler.begin();
