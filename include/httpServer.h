@@ -24,6 +24,7 @@ class httpServer : public Task {
 protected:
     void setup();
     void loop();
+    void HttpPostSpeed();
 private:
   unsigned int counter = 0;
 };
