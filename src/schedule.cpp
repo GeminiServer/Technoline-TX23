@@ -18,31 +18,28 @@
 #include <Arduino.h>
 #include <schedule.h>
 #include <ESP8266WiFi.h>
-#include "main.h"
 #include "settings.h"
-
-// const int led= 2;  --> Defined in main.h !
 
 void BlinkTask::setup() {
   state = HIGH;
-  pinMode(led, OUTPUT);
-  pinMode(led, BlinkTask::state);
+  pinMode(LED_INDICATION_PIN, OUTPUT);
+  pinMode(LED_INDICATION_PIN, BlinkTask::state);
 }
 
 void BlinkTask::loop() {
   BlinkTask::state = BlinkTask::state == HIGH ? LOW : HIGH;
-  pinMode(led, BlinkTask::state);
+  pinMode(LED_INDICATION_PIN, BlinkTask::state);
   delay(50);
 }
 
 void WifiSignal::loop() {
   WifiSignal::rssi = (WiFi.status() == WL_CONNECTED) ? WiFi.RSSI() : 0;
 #ifdef SERIAL_DEBUG
-  Serial.print("WiFi Signal Strength: ");
-  Serial.print(rssi);
-  Serial.println("dBm");
-  delay(10000);
+  Serial_Log.print("WiFi Signal Strength: ");
+  Serial_Log.print(rssi);
+  Serial_Log.println("dBm");
 #endif
+  delay(10000);
 }
 
 void MemTask::loop() {

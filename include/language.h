@@ -15,13 +15,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <Arduino.h>
-#include <Scheduler.h>
+// Defines output string LANG. Ucomment for EN, which is default.
+//
+#define LANGUAGE_GER
 
+#ifdef LANGUAGE_GER
+  #define L_SPEED         "Geschwindigkeit"
+  #define L_DIRECTION     "Richtung"
+  #define L_BEAUFORTSCALE "Beaufortskala"
+  #define L_LONG          "Lang"
+  #define L_DEGREES       "Grad"
+  #define L_MILES         "Meilen"
+  #define L_KNOTE         "knoten"
+  #define L_FOOT          "Fuß"
 
-class httpClient : public Task {
-  protected:
-    void setup();
-    void loop();
-    void HttpPostSpeed();
-};
+#else  // Default EN
+
+  #define L_SPEED         "Speed"
+  #define L_DIRECTION     "Direction"
+  #define L_BEAUFORTSCALE "Beaufortscale"
+  #define L_LONG          "Long"
+  #define L_DEGREES       "Degrees"
+  #define L_MILES         "Miles"
+  #define L_KNOTE         "knote"
+  #define L_FOOT          "Foot"
+#endif

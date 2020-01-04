@@ -6,10 +6,10 @@ It uses 3 wires for communication and power:
 
 | TX23 Cable/Pin   | Color           | Description |
 |------            | --------------- | -----------
-|Pin1	             | Brown or Black	 | DATA
-|Pin2	             | Red or Pink 		 | Vcc
-|Pin3	             | Green					 | N/C
-|Pin4	             | Yellow				   | GND
+|Pin1              | Brown or Black  | DATA
+|Pin2              | Red or Pink     | Vcc
+|Pin3              | Green           | N/C
+|Pin4              | Yellow          | GND
 
 
 Currently it is unclear of what Voltage the TX23 is normally driven with when connected to its original Weather Station, but it seems to run with 3.3 Volts without any problems. I connected
@@ -41,7 +41,7 @@ const int led= 16;
 
 #
 # Enable (define) or disable (comment out) Console output (Default is enabled!)
-# main.h
+#
 define SERIAL_DEBUG
 ```
 
