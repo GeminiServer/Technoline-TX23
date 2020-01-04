@@ -15,16 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include <Arduino.h>
 #include <Scheduler.h>
 #include <WebSocketsServer.h>
 
 class httpServer : public Task {
-protected:
+  private:
+    unsigned int counter = 0;
+    void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
+    void HttpPostSpeed();
     void setup();
     void loop();
-    void HttpPostSpeed();
-private:
-  unsigned int counter = 0;
 };

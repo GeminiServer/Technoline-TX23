@@ -18,22 +18,22 @@
 #include <Scheduler.h>
 
 class BlinkTask : public Task {
-protected:
+  protected:
     void setup();
     void loop();
 
-private:
+  private:
     uint8_t state;
 };
 
 class MemTask : public Task {
-public:
+  public:
     void loop();
 };
 
 class WifiSignal : public Task {
-private:
-  int32_t rssi;
-public:
+  private:
+    int32_t rssi;
+  public:
     void loop();
 };

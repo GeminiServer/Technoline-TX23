@@ -15,10 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#define SERIAL_DEBUG
+#include <Scheduler.h>
+#include <PubSubClient.h>
 
-#ifdef SERIAL_DEBUG
-  #define Serial_Log Serial
-#else
-  #define Serial_Log Serial(a=0,b=0,c=0);
-#endif
+class mqttpubsub : public Task {
+  protected:
+    void setup();
+    void loop();
+  private:
+    unsigned int counter = 0;
+    unsigned long lastMsg = 0;
+    String sMessage;
+    String sPublishTopic;
+    uint uiMqttPublishDelay= MQTT_MSG_PUB_SUB_DELAY;
+
+    void reconnect();
+    void PublishMessage(String strPublishTopic, String strMessage, uint iCounter);
+    WiFiClient lWClient;
+    PubSubClient *client= new PubSubClient(lWClient);
+  protected:
+    void callback(char* topic, byte* payload, unsigned int length);
+};

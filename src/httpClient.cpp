@@ -19,39 +19,42 @@
 #include <WiFiClient.h>
 #include "httpClient.h"
 #include "tx23.h"
-#include "main.h"
 #include "settings.h"
 
 extern TX23 tx_23;
+extern Settings eeprom_settings;
 
 void httpClient::HttpPostSpeed() {
-  if (tx_23.bLastReadState) {
-    HTTPClient http;    //Declare object of class HTTPClient
-    //WiFiClient client;
+  if (eeprom_settings.tx_23_settings.bMiddlewareEnabled && tx_23.bLastReadState) {
+    HTTPClient http;    // Declare object of class HTTPClient
+                        // WiFiClient client;
 
-  	String sLink = String(MIDDLEWARE_URL) + String(MIDDLEWARE_OPERATION) + tx_23.sRawSpeedKMh;
+    String sLink = eeprom_settings.tx_23_settings.cMiddleware;
+           sLink += eeprom_settings.tx_23_settings.cMiddlewareOperation;
+           sLink += tx_23.sRawSpeedKMh;
+
     #ifdef SERIAL_DEBUG
-      Serial.println(sLink);   //Print HTTP return code
+      Serial_Log.println(sLink);   //Print HTTP return code
     #endif
 
-  	if ( http.begin(/*client,*/ sLink)) {     //Specify request destination
-    	int httpCode = http.GET();            //Send the request
-      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
-    	   String payload = http.getString();    //Get the response payload
-         #ifdef SERIAL_DEBUG
-           Serial.println(httpCode);   //Print HTTP return code
-           Serial.println(payload);    //Print request response payload
-        #endif
-       } else {
-         #ifdef SERIAL_DEBUG
-          Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-        #endif
-       }
-    	http.end();  //Close connection
-  	} else {
-      #ifdef SERIAL_DEBUG
-        Serial.printf("[HTTP] Unable to connect\n");
+    if ( http.begin(/*client,*/ sLink)) {     //Specify request destination
+      int httpCode = http.GET();              //Send the request
+    if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+         String payload = http.getString();    //Get the response payload
+       #ifdef SERIAL_DEBUG
+         Serial_Log.println(httpCode);   //Print HTTP return code
+         Serial_Log.println(payload);    //Print request response payload
       #endif
+     } else {
+       #ifdef SERIAL_DEBUG
+        Serial_Log.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+      #endif
+     }
+      http.end();  //Close connection
+    } else {
+    #ifdef SERIAL_DEBUG
+      Serial_Log.printf("[HTTP] Unable to connect\n");
+    #endif
     }
   }
 }
@@ -61,5 +64,5 @@ void httpClient::setup() {
 
 void httpClient::loop() {
   HttpPostSpeed();
-  delay(30000);
+  delay(eeprom_settings.tx_23_settings.uiMiddlewareDelayTime);
 }
