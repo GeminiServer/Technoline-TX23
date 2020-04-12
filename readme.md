@@ -54,7 +54,6 @@ Mount: I also designed a case which is for the ESP, Step down powersupply (HLP-P
 <img src="doc/TechnolineTX23_ESP82xx.JPG" width="426px">
 <img src="doc/TX23-WiFi-Installation.png" width="400px">
 
-<script src="doc/stl/TX23-ESP-HLK-PM02-Antenna-Mount-Case.stl"></script>
 
 [John]: <https://www.john.geek.nz/2012/08/la-crosse-tx23u-anemometer-communication-protocol/>
 [lib]: <https://github.com/egzumer/Arduino-LaCrosse-TX23-Library>
