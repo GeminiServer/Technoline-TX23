@@ -49,12 +49,16 @@ static const uint16_t tx_io_port = 0;
 //...
 ```
 
-Mount: I also designed a case which is for the ESP, Step down powersupply (HLP-PM03) and connection for the wifi antenna and to mount the TX23. The stl can be found in docs folder. 
+Mount: I also designed a case which is for the ESP, Step down powersupply (HLP-PM03) and connection for the wifi antenna and to mount the TX23. The stl [STL1] and [STL2] can be found in docs folder. 
 
 <img src="doc/TechnolineTX23_ESP82xx.JPG" width="426px">
 <img src="doc/TX23-WiFi-Installation.png" width="400px">
+
+<script src="doc/stl/TX23-ESP-HLK-PM02-Antenna-Mount-Case.stl"></script>
 
 [John]: <https://www.john.geek.nz/2012/08/la-crosse-tx23u-anemometer-communication-protocol/>
 [lib]: <https://github.com/egzumer/Arduino-LaCrosse-TX23-Library>
 [LaCrosse TX23]: https://www.lacrossetechnology.com/tx23-wind-sensor
 [Technoline TX23]: https://www.lacrossetechnology.com/tx23-wind-sensor
+[STL2]: <doc/stl/TX23-ESP-HLK-PM02-Antenna-Mount-Case-cover.stl>
+[STL1]: <doc/stl/TX23-ESP-HLK-PM02-Antenna-Mount-Case.stl>
