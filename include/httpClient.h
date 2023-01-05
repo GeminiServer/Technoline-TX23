@@ -20,6 +20,8 @@
 
 
 class httpClient : public Task {
+  private:
+    WiFiClient newWifiClient;
   protected:
     void setup();
     void loop();

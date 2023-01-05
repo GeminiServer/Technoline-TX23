@@ -37,7 +37,7 @@ void httpClient::HttpPostSpeed() {
       Serial_Log.println(sLink);   //Print HTTP return code
     #endif
 
-    if ( http.begin(/*client,*/ sLink)) {     //Specify request destination
+    if ( http.begin(newWifiClient, sLink)) {     //Specify request destination
       int httpCode = http.GET();              //Send the request
     if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
          String payload = http.getString();    //Get the response payload

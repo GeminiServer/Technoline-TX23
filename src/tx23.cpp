@@ -60,30 +60,32 @@ void TX23::pullBits(void *dst, bool *src, int count)
 
 void TX23::read() {
   if ( _pin > -1) {
-    speed = direction = 0;
-    digitalWrite(_pin,LOW);
-    pinMode(_pin,OUTPUT);
-    delay(500);
-    pinMode(_pin,INPUT);
-    pulseIn(_pin,LOW);
-       
+      
     unsigned bitLen = 1200;
     bool data[50];
     bool lastState = 1;
-    unsigned long start = micros();
-    for(unsigned long t = 0; t<50000; t = micros()-start)
-    {
-      bool state = digitalRead(_pin);
-      unsigned bitNum = t/bitLen;
-      if(t%bitLen>bitLen/2) data[bitNum] = state;
-      if(state!=lastState)
+    noInterrupts(); {
+      digitalWrite(_pin,LOW);
+      pinMode(_pin,OUTPUT);
+      delay(500);
+      pinMode(_pin,INPUT);
+      pulseIn(_pin,LOW);
+        
+      unsigned long start = micros();
+      for(unsigned long t = 0; t<50000; t = micros()-start)
       {
-        unsigned delta = t%bitLen;
-        if(delta<100) start -= delta;
-        else if(delta>900) start += delta;
-        lastState = state;
+        bool state = digitalRead(_pin);
+        unsigned bitNum = t/bitLen;
+        if(t%bitLen>bitLen/2) data[bitNum] = state;
+        if(state!=lastState)
+        {
+          unsigned delta = t%bitLen;
+          if(delta<100) start -= delta;
+          else if(delta>900) start += delta;
+          lastState = state;
+        }
       }
-    }
+    } interrupts();
 
     uint8_t ctr   = 0;  pullBits( &ctr,data+0,5    );
     uint8_t dir   = 0;  pullBits( &dir,data+5,4    );
@@ -95,10 +97,11 @@ void TX23::read() {
     const uint8_t csum = 0x0f & (dir + (spd&0x0f) + ((spd>>4)&0x0f) + ((spd>>8)&0x0f));
 
     if(ctr!=27 || csum!=sum || spd!=nspd || dir!=ndir ) {
+        speed = direction = 0;
         bReadState= false;
         if(uiErrCnt++ > 10 ) bLastReadState= bReadState;
         sLastError= "Error reading TX23.";
-        delay(5000); // Some thing goes wrong. Let's wait here a little bit.
+        delay(3000); // Some thing goes wrong. Let's wait here a little bit.
     } else {
       speed = spd/10.0;
       uiSpeedRaw= spd;
@@ -106,7 +109,7 @@ void TX23::read() {
       bReadState= true;
       bLastReadState=bReadState;
       uiErrCnt=0;
-      delay(2000); // Delay must be between 2 - 4 Seconds before starting next read request.
+      delay(3000); // Delay must be between 2 - 4 Seconds before starting next read request.
                    // Otherwise wind speed will read 0.
     }
   } else sLastError= "TX23 pin is not set or defined!";
@@ -150,7 +153,10 @@ uint8 TX23::DirectionOffset(uint8 iDirection) {
   if(eeprom_settings.tx_23_settings.uiOffset_Direction > 0) {
     uint8 dirTableOffset[16]= { 0 };
     for( uint8 i=eeprom_settings.tx_23_settings.uiOffset_Direction, j=0; j < 16; i++,j++ ) {
-      if(i >15 ) i=0;    dirTableOffset[i]= j;
+      if(i >15 ) { 
+        i=0;
+        dirTableOffset[i]= j;
+      }
     }
     return dirTableOffset[iDirection];
   } else return iDirection;
